@@ -1,7 +1,7 @@
 module game::guessing_game {
     use std::signer;
     use std::vector;
-    use aptos_framework::coin::{Self, Coin};
+    use aptos_framework::fungible_asset::{Self, FungibleAsset};
     use aptos_framework::timestamp;
     use aptos_framework::hash;
 
@@ -16,7 +16,7 @@ module game::guessing_game {
         fee: u64,
         revenue_account: address,
         players: vector<Player>,
-        pool: Coin<T>,
+        pool: FungibleAsset<T>,
     }
 
     public fun new<T>(admin: &signer, fee: u64, revenue_account: address): address {
@@ -25,17 +25,17 @@ module game::guessing_game {
             fee,
             revenue_account,
             players: vector::empty<Player>(),
-            pool: Coin.zero<T>(),
+            pool: FungibleAsset.zero<T>(),
         };
         let addr = signer::address_of(admin);
         move_to(admin, game);
         addr
     }
 
-    public fun join<T>(admin_addr: address, player: &signer, guess: u8, fee_coin: Coin<T>) acquires Game {
+    public fun join<T>(admin_addr: address, player: &signer, guess: u8, fee_asset: FungibleAsset<T>) acquires Game {
         assert!(guess >= 1 && guess <= 99, 1);
         let game = borrow_global_mut<Game<T>>(admin_addr);
-        Coin.merge(&mut game.pool, fee_coin);
+        FungibleAsset.merge(&mut game.pool, fee_asset);
         vector::push_back(&mut game.players, Player { addr: signer::address_of(player), guess });
         if (vector::length(&game.players) == 10) {
             finalize<T>(game);
@@ -46,18 +46,18 @@ module game::guessing_game {
         let rand = pseudo_random();
         let closest_idx = find_closest(&game.players, rand);
         let winner = &game.players[closest_idx];
-        let total = Coin.value(&game.pool);
+        let total = FungibleAsset.value(&game.pool);
         let prize = total * 95 / 100;
         let fees = total - prize;
         let liquidity_share = fees * 9 / 10;
         let revenue_share = fees - liquidity_share;
-        let prize_coin = Coin.split(&mut game.pool, prize);
-        Coin.deposit(winner.addr, prize_coin);
+        let prize_asset = FungibleAsset.split(&mut game.pool, prize);
+        FungibleAsset.deposit(winner.addr, prize_asset);
         // Placeholder: convert half of liquidity_share to APT and add to pool
-        let _liq_coin = Coin.split(&mut game.pool, liquidity_share);
+        let _liq_asset = FungibleAsset.split(&mut game.pool, liquidity_share);
         // Send revenue
-        let rev_coin = Coin.split(&mut game.pool, revenue_share);
-        Coin.deposit(game.revenue_account, rev_coin);
+        let rev_asset = FungibleAsset.split(&mut game.pool, revenue_share);
+        FungibleAsset.deposit(game.revenue_account, rev_asset);
         vector::destroy_empty(&mut game.players);
     }
     fun find_closest(players: &vector<Player>, target: u8): u64 {
