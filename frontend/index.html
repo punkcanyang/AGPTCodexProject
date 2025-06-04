@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aptos Guessing Game</title>
+</head>
+<body>
+  <h1>Aptos Guessing Game</h1>
+  <div>
+    <label>Admin address: <input id="admin" /></label>
+  </div>
+  <div>
+    <label>Your guess (1-99): <input id="guess" type="number" min="1" max="99" /></label>
+  </div>
+  <button id="join">Join Game</button>
+
+  <script type="module">
+    import {
+      AptosClient,
+      AptosAccount,
+      TxnBuilderTypes,
+      BCS
+    } from "https://unpkg.com/aptos@latest/dist/index.browser.js";
+
+    const client = new AptosClient("https://fullnode.mainnet.aptoslabs.com/v1");
+
+    document.getElementById('join').onclick = async () => {
+      const adminAddress = document.getElementById('admin').value.trim();
+      const guess = parseInt(document.getElementById('guess').value, 10);
+      if (!adminAddress || !guess) {
+        alert('Please provide admin address and guess');
+        return;
+      }
+
+      // Example only: create a new account each time.
+      // Replace with wallet integration for real usage.
+      const account = new AptosAccount();
+
+      const payload = new TxnBuilderTypes.TransactionPayloadEntryFunction(
+        TxnBuilderTypes.EntryFunction.natural(
+          `${adminAddress}::guessing_game`,
+          'join',
+          [],
+          [BCS.bcsSerializeU8(guess)]
+        )
+      );
+
+      const rawTxn = await client.generateTransaction(account.address(), payload);
+      const signedTxn = await client.signTransaction(account, rawTxn);
+      const result = await client.submitTransaction(signedTxn);
+      console.log(result);
+    };
+  </script>
+</body>
+</html>
