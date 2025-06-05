@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aptos猜数字游戏 - 玩家页面</title>
+  <title>猜数字游戏 - 管理员面板</title>
   <script src="https://unpkg.com/@aptos-labs/ts-sdk@latest/dist/browser/index.js"></script>
   <script src="config.js"></script>
   <style>
@@ -21,7 +21,7 @@
     }
     
     .container {
-      max-width: 800px;
+      max-width: 1200px;
       margin: 0 auto;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 20px;
@@ -40,6 +40,11 @@
       color: #333;
       font-size: 2.5em;
       margin-bottom: 10px;
+    }
+    
+    .header p {
+      color: #666;
+      font-size: 1.1em;
     }
     
     .network-info {
@@ -62,7 +67,7 @@
       margin-bottom: 30px;
     }
     
-    .game-section {
+    .section {
       background: white;
       padding: 25px;
       border-radius: 15px;
@@ -70,7 +75,7 @@
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
     }
     
-    .game-section h2 {
+    .section h2 {
       color: #333;
       margin-bottom: 20px;
       font-size: 1.5em;
@@ -159,6 +164,35 @@
       border: 1px solid #bee5eb;
     }
     
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+    }
+    
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid #eee;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
     .hidden {
       display: none;
     }
@@ -185,62 +219,19 @@
       background-color: #007bff;
       color: white;
     }
-    
-    .game-info {
-      background: #f8f9fa;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-    
-    .game-info h3 {
-      color: #333;
-      margin-bottom: 15px;
-    }
-    
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-    }
-    
-    .info-item {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      text-align: center;
-    }
-    
-    .info-value {
-      font-size: 1.5em;
-      font-weight: bold;
-      color: #007bff;
-    }
-    
-    .info-label {
-      color: #666;
-      margin-top: 5px;
-    }
-    
-    .guess-input {
-      text-align: center;
-      font-size: 2em;
-      font-weight: bold;
-      color: #007bff;
-    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>🎯 猜数字游戏</h1>
-      <p>基于Aptos区块链的去中心化猜数字游戏</p>
+      <h1>🎮 猜数字游戏管理员面板</h1>
+      <p>基于Aptos区块链的去中心化游戏管理系统</p>
     </div>
 
     <div class="network-switch">
       <a href="?network=devnet" id="devnet-link">Devnet</a>
       <a href="?network=testnet" id="testnet-link">Testnet</a>
-      <a href="admin.html" style="margin-left: 20px;">⚙️ 管理员页面</a>
+      <a href="index.html" style="margin-left: 20px;">🎯 玩家页面</a>
     </div>
 
     <div class="network-info">
@@ -260,52 +251,58 @@
       </div>
     </div>
 
-    <!-- 游戏信息部分 -->
-    <div class="game-section">
-      <h2>📊 游戏信息</h2>
-      <div class="input-group">
-        <label for="game-admin">游戏管理员地址:</label>
-        <input type="text" id="game-admin" placeholder="输入游戏管理员地址">
-      </div>
-      <button id="load-game" class="btn">加载游戏信息</button>
-      
-      <div id="game-info" class="game-info hidden">
-        <h3>当前游戏状态</h3>
-        <div class="info-grid">
-          <div class="info-item">
-            <div class="info-value" id="game-id">-</div>
-            <div class="info-label">游戏ID</div>
-          </div>
-          <div class="info-item">
-            <div class="info-value" id="player-count">-</div>
-            <div class="info-label">当前玩家数</div>
-          </div>
-          <div class="info-item">
-            <div class="info-value" id="game-fee">-</div>
-            <div class="info-label">参与费用 (Octas)</div>
-          </div>
-          <div class="info-item">
-            <div class="info-value" id="token-address">-</div>
-            <div class="info-label">代币地址</div>
-          </div>
+    <div class="grid">
+      <!-- 游戏配置部分 -->
+      <div class="section">
+        <h2>⚙️ 游戏配置</h2>
+        <button id="init-config" class="btn">初始化游戏配置</button>
+        <div id="config-status" class="status info hidden">
+          配置状态将在这里显示
         </div>
       </div>
-    </div>
 
-    <!-- 参与游戏部分 -->
-    <div class="game-section">
-      <h2>🎮 参与游戏</h2>
-      <div class="input-group">
-        <label for="guess-number">你的猜测 (1-99):</label>
-        <input type="number" id="guess-number" min="1" max="99" placeholder="输入1-99之间的数字" class="guess-input">
+      <!-- 代币管理部分 -->
+      <div class="section">
+        <h2>🪙 代币管理</h2>
+        <div class="input-group">
+          <label for="token-address">代币地址:</label>
+          <input type="text" id="token-address" placeholder="输入FA代币metadata地址">
+        </div>
+        <button id="allow-token" class="btn btn-success">允许代币</button>
+        <button id="disallow-token" class="btn btn-danger">禁止代币</button>
+        <div id="token-status" class="status info hidden">
+          代币状态将在这里显示
+        </div>
       </div>
-      <div class="input-group">
-        <label for="fee-amount">参与费用 (Octas):</label>
-        <input type="number" id="fee-amount" placeholder="参与费用" readonly>
+
+      <!-- 游戏创建部分 -->
+      <div class="section">
+        <h2>🎯 创建游戏</h2>
+        <div class="input-group">
+          <label for="game-fee">参与费用 (Octas):</label>
+          <input type="number" id="game-fee" value="100000000" placeholder="100000000">
+        </div>
+        <div class="input-group">
+          <label for="revenue-account">收入账户:</label>
+          <input type="text" id="revenue-account" placeholder="收入账户地址">
+        </div>
+        <div class="input-group">
+          <label for="game-token">游戏代币地址:</label>
+          <input type="text" id="game-token" placeholder="FA代币metadata地址">
+        </div>
+        <button id="create-game" class="btn">创建游戏</button>
+        <div id="game-status" class="status info hidden">
+          游戏状态将在这里显示
+        </div>
       </div>
-      <button id="join-game" class="btn btn-success">加入游戏</button>
-      <div id="join-status" class="status info hidden">
-        游戏状态将在这里显示
+
+      <!-- 游戏列表部分 -->
+      <div class="section">
+        <h2>📋 游戏管理</h2>
+        <button id="refresh-games" class="btn">刷新游戏列表</button>
+        <div id="games-list">
+          <p>点击刷新按钮加载游戏列表</p>
+        </div>
       </div>
     </div>
   </div>
@@ -315,7 +312,6 @@
     let aptos;
     let account = null;
     let currentNetwork;
-    let currentGameAdmin = null;
 
     // 初始化
     document.addEventListener('DOMContentLoaded', async () => {
@@ -349,13 +345,21 @@
         link.classList.remove('active');
       });
       document.getElementById(`${currentNetwork.key}-link`).classList.add('active');
+      
+      // 设置收入账户默认值
+      if (account) {
+        document.getElementById('revenue-account').value = account.address;
+      }
     }
 
     function bindEvents() {
       document.getElementById('connect-wallet').addEventListener('click', connectWallet);
       document.getElementById('disconnect-wallet').addEventListener('click', disconnectWallet);
-      document.getElementById('load-game').addEventListener('click', loadGameInfo);
-      document.getElementById('join-game').addEventListener('click', joinGame);
+      document.getElementById('init-config').addEventListener('click', initializeConfig);
+      document.getElementById('allow-token').addEventListener('click', () => setTokenAllowed(true));
+      document.getElementById('disallow-token').addEventListener('click', () => setTokenAllowed(false));
+      document.getElementById('create-game').addEventListener('click', createGame);
+      document.getElementById('refresh-games').addEventListener('click', refreshGamesList);
     }
 
     async function connectWallet() {
@@ -368,11 +372,14 @@
         account = response;
         
         updateWalletDisplay();
-        showStatus('join-status', '钱包连接成功!', 'success');
+        showStatus('wallet-info', '钱包连接成功!', 'success');
+        
+        // 设置默认收入账户
+        document.getElementById('revenue-account').value = account.address;
         
       } catch (error) {
         console.error('连接钱包失败:', error);
-        showStatus('join-status', `连接失败: ${error.message}`, 'error');
+        showStatus('wallet-info', `连接失败: ${error.message}`, 'error');
       }
     }
 
@@ -383,7 +390,7 @@
         }
         account = null;
         updateWalletDisplay();
-        showStatus('join-status', '钱包已断开连接', 'info');
+        showStatus('wallet-info', '钱包已断开连接', 'info');
       } catch (error) {
         console.error('断开连接失败:', error);
       }
@@ -430,87 +437,125 @@
       }
     }
 
-    async function loadGameInfo() {
-      const gameAdmin = document.getElementById('game-admin').value.trim();
-      if (!gameAdmin) {
-        showStatus('join-status', '请输入游戏管理员地址', 'error');
-        return;
-      }
-
-      try {
-        showStatus('join-status', '正在加载游戏信息...', 'info');
-        
-        const gameInfo = await aptos.view({
-          function: `${currentNetwork.config.contractAddress}::${window.APTOS_CONFIG.MODULE_NAME}::get_game_info`,
-          functionArguments: [gameAdmin]
-        });
-
-        currentGameAdmin = gameAdmin;
-        
-        // 更新游戏信息显示
-        document.getElementById('game-id').textContent = gameInfo[0];
-        document.getElementById('player-count').textContent = `${gameInfo[1]}/10`;
-        document.getElementById('game-fee').textContent = gameInfo[2];
-        document.getElementById('token-address').textContent = gameInfo[3];
-        document.getElementById('fee-amount').value = gameInfo[2];
-        
-        document.getElementById('game-info').classList.remove('hidden');
-        showStatus('join-status', '游戏信息加载成功!', 'success');
-        
-      } catch (error) {
-        console.error('加载游戏信息失败:', error);
-        showStatus('join-status', `加载失败: ${error.message}`, 'error');
-        document.getElementById('game-info').classList.add('hidden');
-      }
-    }
-
-    async function joinGame() {
+    async function initializeConfig() {
       if (!account) {
-        showStatus('join-status', '请先连接钱包', 'error');
-        return;
-      }
-
-      if (!currentGameAdmin) {
-        showStatus('join-status', '请先加载游戏信息', 'error');
-        return;
-      }
-
-      const guess = document.getElementById('guess-number').value;
-      const feeAmount = document.getElementById('fee-amount').value;
-
-      if (!guess || guess < 1 || guess > 99) {
-        showStatus('join-status', '请输入1-99之间的数字', 'error');
-        return;
-      }
-
-      if (!feeAmount) {
-        showStatus('join-status', '请先加载游戏信息获取参与费用', 'error');
+        showStatus('config-status', '请先连接钱包', 'error');
         return;
       }
 
       try {
-        showStatus('join-status', '正在加入游戏...', 'info');
+        showStatus('config-status', '正在初始化配置...', 'info');
         
         const transaction = {
           data: {
-            function: `${currentNetwork.config.contractAddress}::${window.APTOS_CONFIG.MODULE_NAME}::join`,
-            functionArguments: [currentGameAdmin, parseInt(guess), parseInt(feeAmount)]
+            function: `${currentNetwork.config.contractAddress}::${window.APTOS_CONFIG.MODULE_NAME}::initialize`,
+            functionArguments: []
           }
         };
 
         const pendingTransaction = await window.aptos.signAndSubmitTransaction(transaction);
         await aptos.waitForTransaction({ transactionHash: pendingTransaction.hash });
         
-        showStatus('join-status', '成功加入游戏! 🎉', 'success');
+        showStatus('config-status', '配置初始化成功!', 'success');
+      } catch (error) {
+        console.error('初始化配置失败:', error);
+        showStatus('config-status', `初始化失败: ${error.message}`, 'error');
+      }
+    }
+
+    async function setTokenAllowed(allowed) {
+      if (!account) {
+        showStatus('token-status', '请先连接钱包', 'error');
+        return;
+      }
+
+      const tokenAddress = document.getElementById('token-address').value.trim();
+      if (!tokenAddress) {
+        showStatus('token-status', '请输入代币地址', 'error');
+        return;
+      }
+
+      try {
+        showStatus('token-status', `正在${allowed ? '允许' : '禁止'}代币...`, 'info');
         
-        // 重新加载游戏信息
+        const transaction = {
+          data: {
+            function: `${currentNetwork.config.contractAddress}::${window.APTOS_CONFIG.MODULE_NAME}::set_token_allowed`,
+            functionArguments: [tokenAddress, allowed]
+          }
+        };
+
+        const pendingTransaction = await window.aptos.signAndSubmitTransaction(transaction);
+        await aptos.waitForTransaction({ transactionHash: pendingTransaction.hash });
+        
+        showStatus('token-status', `代币${allowed ? '允许' : '禁止'}成功!`, 'success');
+      } catch (error) {
+        console.error('设置代币状态失败:', error);
+        showStatus('token-status', `操作失败: ${error.message}`, 'error');
+      }
+    }
+
+    async function createGame() {
+      if (!account) {
+        showStatus('game-status', '请先连接钱包', 'error');
+        return;
+      }
+
+      const fee = document.getElementById('game-fee').value;
+      const revenueAccount = document.getElementById('revenue-account').value.trim();
+      const tokenAddress = document.getElementById('game-token').value.trim();
+
+      if (!fee || !revenueAccount || !tokenAddress) {
+        showStatus('game-status', '请填写所有字段', 'error');
+        return;
+      }
+
+      try {
+        showStatus('game-status', '正在创建游戏...', 'info');
+        
+        const transaction = {
+          data: {
+            function: `${currentNetwork.config.contractAddress}::${window.APTOS_CONFIG.MODULE_NAME}::new`,
+            functionArguments: [account.address, tokenAddress, fee, revenueAccount]
+          }
+        };
+
+        const pendingTransaction = await window.aptos.signAndSubmitTransaction(transaction);
+        const result = await aptos.waitForTransaction({ transactionHash: pendingTransaction.hash });
+        
+        showStatus('game-status', '游戏创建成功!', 'success');
+        refreshGamesList();
+      } catch (error) {
+        console.error('创建游戏失败:', error);
+        showStatus('game-status', `创建失败: ${error.message}`, 'error');
+      }
+    }
+
+    async function refreshGamesList() {
+      if (!account) {
+        document.getElementById('games-list').innerHTML = '<p>请先连接钱包</p>';
+        return;
+      }
+
+      try {
+        document.getElementById('games-list').innerHTML = '<div class="loading"></div> 加载中...';
+        
+        // 这里可以添加获取游戏列表的逻辑
+        // 由于合约中没有直接的获取所有游戏的函数，这里显示一个示例
+        
         setTimeout(() => {
-          loadGameInfo();
-        }, 2000);
+          document.getElementById('games-list').innerHTML = `
+            <div class="card">
+              <h4>游戏管理</h4>
+              <p>要查看具体的游戏信息，请使用游戏管理员地址调用 get_game_info 函数</p>
+              <p>当前管理员地址: ${account.address}</p>
+            </div>
+          `;
+        }, 1000);
         
       } catch (error) {
-        console.error('加入游戏失败:', error);
-        showStatus('join-status', `加入失败: ${error.message}`, 'error');
+        console.error('获取游戏列表失败:', error);
+        document.getElementById('games-list').innerHTML = '<p>获取游戏列表失败</p>';
       }
     }
 
@@ -528,4 +573,4 @@
     }
   </script>
 </body>
-</html>
+</html> 

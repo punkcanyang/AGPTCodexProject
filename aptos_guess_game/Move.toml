@@ -1,7 +1,17 @@
 [package]
 name = "GuessingGame"
-version = "0.0.1"
+version = "1.0.0"
 upgrade_policy = "compatible"
+authors = []
 
 [addresses]
-game = "0x1"
+game = "0xe8212f3e57916bcb45f037d6de15e56cf97107669a767d8232f4aa359e061dda"
+
+[dev-addresses]
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "aptos-cli-v6.1.1" }
+AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-stdlib", rev = "aptos-cli-v6.1.1" }
+MoveStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/move-stdlib", rev = "aptos-cli-v6.1.1" }
+
+[dev-dependencies]
